@@ -1,0 +1,7 @@
+Flask
+flask_bootstrap
+arrow
+boto3
+uwsgi
+flask-sqlalchemy
+

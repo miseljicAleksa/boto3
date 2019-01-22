@@ -1,0 +1,80 @@
+{% extends "bootstrap/base.html" %}
+{% block html_attribs %} lang="en"{% endblock %}
+{% block title %}S3 Object List{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-fixed-top">
+  <!-- ... -->
+</div>
+{% endblock %}
+
+{% block head %}
+  {{super()}}
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/style.css">
+{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+    <div class="col-12-xs">
+      <h3>bucket info</h3>
+      <p>Created: {{ my_bucket.creation_date | datetimeformat }}</p>
+
+
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p class="bg-info" style="padding: 15px;">
+        {% for message in messages %}
+          {{ message }}<br>
+        {% endfor %}
+        </p>
+      {% endif %}
+    {% endwith %}
+    <hr>
+
+      <hr>
+      <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <p><input type="file" name="file"></p>
+        <p><input type="text" name="title"> comment it</p>
+        <button type="submit" class="btn btn-primary">upload img</button>
+      </form>
+      <hr>
+
+      
+      <table class="table table-striped">
+        <tr>
+          <th>filename</th>
+          <th>last modified</th>
+          <th>comment</th>
+          <th>action</th>
+        </tr>
+        {% for f in files %}
+        {% for c in comments %}
+        <tr>
+          <td>{{ f.key }}</td>
+          <td>{{ f.last_modified | datetimeformat }}</td>
+          <td><p>{{ c.title }}</p></td>
+            
+          <td>
+            <form class="delete-form" action="{{ url_for('delete') }}" method="POST">
+              <input type="hidden" name="key" value="{{ f.key }}">
+              <button type="submit" class="btn btn-danger btn-sm">delete</button>
+            </form>
+            <form class="download-form" action="{{ url_for('download') }}" method="POST">
+              <input type="hidden" name="key" value="{{ f.key }}">
+              <button type="submit" class="btn btn-default btn-sm">
+                download
+              </button>
+            </form>
+          </td>
+
+
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+{% endblock %}
