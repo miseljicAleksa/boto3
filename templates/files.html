@@ -48,23 +48,27 @@
           <th>filename</th>
           <th>last modified</th>
           <th>comment</th>
+          <th>something</th>
           <th>action</th>
           <th>preview</th>
+          
         </tr>
-        {% for f in files %}
+
         {% for c in comments %}
         <tr>
-          <td>{{ f.key }}</td>
-          <td>{{ f.last_modified | datetimeformat }}</td>
+          <td>{{ c.name }}</td>
+         
           <td><p>{{ c.title }}</p></td>
+          <td>{{ c.urlocator }}</td>
+          
             
           <td>
             <form class="delete-form" action="{{ url_for('delete') }}" method="POST">
-              <input type="hidden" name="key" value="{{ f.key }}">
+              <input type="hidden" name="key" value="{{ c.name }}">
               <button type="submit" class="btn btn-danger btn-sm">delete</button>
             </form>
             <form class="download-form" action="{{ url_for('download') }}" method="POST">
-              <input type="hidden" name="key" value="{{ f.key }}">
+              <input type="hidden" name="key" value="{{ c.name }}">
               <button type="submit" class="btn btn-default btn-sm">
                 download
               </button>
@@ -72,14 +76,17 @@
           </td>
           <td>
             <audio controls>
-              <source src="" type="audio/ogg">
-              <source src="" type="audio/mpeg">
+              <source src="{{c.urlocator}}" type="audio/ogg">
+              <source src="{{c.urlocator}}" type="audio/mpeg">
             </audio>
+          </td>
+          <td>
+            <img src="{{c.urlocator}}" alt="" style="width:300px;" >
           </td>
 
 
         </tr>
-        {% endfor %}
+        
         {% endfor %}
       </table>
     </div>

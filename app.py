@@ -55,7 +55,7 @@ def files():
     
     return render_template('files.html', my_bucket=my_bucket, files=summaries, comments=comments)
 
-################################### OVDE ########################################################
+
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -68,7 +68,7 @@ def upload():
 
     if request.form:
         params = {'Bucket': "bucket-flask-us", 'Key': file.filename }#nisam smislio nista pametnije za sada
-        newFile= Comment(title=request.form.get("title"), urlocator=s3_client.generate_presigned_url('get_object', params))
+        newFile= Comment(title=request.form.get("title"), urlocator=s3_client.generate_presigned_url('get_object', params), name=file.filename)
         db.session.add(newFile)
         db.session.commit()
         print(newFile)
@@ -78,7 +78,7 @@ def upload():
     flash('rigi uploaded file successfully')
     return redirect(url_for('files'))
 
-####################################################################################################
+
 
 
 
@@ -114,6 +114,7 @@ def download():
 
 
 class Comment(db.Model):
+    name = db.Column(db.String(80), unique=True, nullable=False, index=True)
     title = db.Column(db.String(80),unique=False, nullable=False)
     urlocator = db.Column(db.String(256), unique=True, primary_key=True)
 
