@@ -49,6 +49,7 @@
           <th>last modified</th>
           <th>comment</th>
           <th>action</th>
+          <th>preview</th>
         </tr>
         {% for f in files %}
         {% for c in comments %}
@@ -68,6 +69,12 @@
                 download
               </button>
             </form>
+          </td>
+          <td>
+            <audio controls>
+              <source src="" type="audio/ogg">
+              <source src="" type="audio/mpeg">
+            </audio>
           </td>
 
 

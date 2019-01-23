@@ -8,18 +8,25 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
-database_file = "sqlite:///{}".format(os.path.join(project_dir, "bookdatabase.db"))
+database_file = "sqlite:///{}".format(os.path.join(project_dir, "cmnts.db"))
 
-urll='https://s3.eu-central-1.amazonaws.com/bucket-flask/slika4.jpg'
+
 
 
 
 s3_resource = boto3.resource(
    "s3",
    aws_access_key_id= "AKIAI4P7ASHAQT2C7AVA",
-   aws_secret_access_key="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"
+   aws_secret_access_key="O+S8oXpVBJ4kH1Np4FB0B0BvoXEN764QoDO5NYJ8",
+   
 )
 
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id="AKIAI4P7ASHAQT2C7AVA",
+    aws_secret_access_key="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",
+)
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -45,12 +52,14 @@ def files():
     summaries = my_bucket.objects.all()
 
     comments = Comment.query.all()
-
+    
     return render_template('files.html', my_bucket=my_bucket, files=summaries, comments=comments)
 
+################################### OVDE ########################################################
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    
     file = request.files['file']
 
     s3_resource = boto3.resource('s3')
@@ -58,14 +67,18 @@ def upload():
     my_bucket.Object(file.filename).put(Body=file)
 
     if request.form:
-        comm = Comment(title=request.form.get("title"))
-        db.session.add(comm)
+        params = {'Bucket': "bucket-flask-us", 'Key': file.filename }#nisam smislio nista pametnije za sada
+        newFile= Comment(title=request.form.get("title"), urlocator=s3_client.generate_presigned_url('get_object', params))
+        db.session.add(newFile)
         db.session.commit()
+        print(newFile)
     
 
-
+    
     flash('rigi uploaded file successfully')
     return redirect(url_for('files'))
+
+####################################################################################################
 
 
 
@@ -88,9 +101,9 @@ def download():
 
     s3_resource = boto3.resource('s3')
     my_bucket = s3_resource.Bucket(S3_BUCKET)
-
+    
     file_obj = my_bucket.Object(key).get()
-
+    
     return Response(
         file_obj['Body'].read(),
         mimetype='text/plain',
@@ -101,10 +114,13 @@ def download():
 
 
 class Comment(db.Model):
-    title = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
+    title = db.Column(db.String(80),unique=False, nullable=False)
+    urlocator = db.Column(db.String(256), unique=True, primary_key=True)
 
     def __repr__(self):
-        return "<Title: {}>".format(self.title)
+        return "<Title: {}>".format(self.urlocator)
+
+   
 
 
 if __name__ == "__main__":
