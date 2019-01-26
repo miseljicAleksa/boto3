@@ -46,9 +46,9 @@
       <table class="table table-striped">
         <tr>
           <th>filename</th>
-          <th>last modified</th>
+          
           <th>comment</th>
-          <th>something</th>
+         
           <th>action</th>
           <th>preview</th>
           
@@ -59,7 +59,8 @@
           <td>{{ c.name }}</td>
          
           <td><p>{{ c.title }}</p></td>
-          <td>{{ c.urlocator }}</td>
+
+        
           
             
           <td>
@@ -75,15 +76,22 @@
             </form>
           </td>
           <td>
+            
             <audio controls>
               <source src="{{c.urlocator}}" type="audio/ogg">
               <source src="{{c.urlocator}}" type="audio/mpeg">
             </audio>
+            
+            
           </td>
-          <td>
-            <img src="{{c.urlocator}}" alt="" style="width:300px;" >
-          </td>
+          
+       
 
+          <td>
+          <img src="{{c.urlocator}}" alt="" style="width:300px;" >
+          </td>
+      
+        
 
         </tr>
         

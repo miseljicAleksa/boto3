@@ -9,10 +9,9 @@ def datetimeformat(date_str):
     return dt.humanize()
 
 
-def file_type(key):
-    file_info = os.path.splitext(key)
-    file_extension = file_info[1]
+def file_type(filename):
+    dump, ext = url.split('.')
     try:
-        return mimetypes.types_map[file_extension]
+        return mimetypes.types_map[ext]
     except KeyError():
         return 'Unknown'
