@@ -19,13 +19,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_file
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'secret'
-SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 
 
 
-import routes
+import routes, api
 
 if __name__ == "__main__":
     app.run(port=1312)

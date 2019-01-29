@@ -3,5 +3,7 @@ flask_bootstrap
 arrow
 boto3
 uwsgi
-flask-sqlalchemy
+Flask-SQLAlchemy
+flask-marshmallow
+marshmallow-sqlalchemy
 
