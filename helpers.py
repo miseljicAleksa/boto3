@@ -6,30 +6,23 @@ from flask_bootstrap import Bootstrap
 import boto3
 from models import Files
 
-
-
-
 class Wrapper:
-    
     s3_resource = boto3.resource(
-    "s3",
-    aws_access_key_id= "AKIAI4P7ASHAQT2C7AVA",
-    aws_secret_access_key="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",
-    
+        "s3",
+        aws_access_key_id = S3_KEY,
+        aws_secret_access_key = S3_SECRET    
     )
-
 
     s3_client = boto3.client(
         "s3",
-        aws_access_key_id="AKIAI4P7ASHAQT2C7AVA",
-        aws_secret_access_key="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",
+        aws_access_key_id = S3_KEY,
+        aws_secret_access_key = S3_SECRET 
     )
 
     my_bucket = s3_resource.Bucket(S3_BUCKET)
     summaries = my_bucket.objects.all()
     comments = Files.query.all()
     
-
     @staticmethod
     def makeUrl():
         for c in Wrapper.comments:
@@ -48,12 +41,13 @@ class Wrapper:
         db.session.commit()
         return newFile
   
-
-
     @staticmethod
     def deleteFile():
         key = request.form['key']
         delete = Wrapper.my_bucket.Object(key).delete()
+        dlt = Files.query.filter_by(name=key).one()
+        db.session.delete(dlt)
+        db.session.commit()
         return delete
 
     @staticmethod
