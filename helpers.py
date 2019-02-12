@@ -1,10 +1,10 @@
-from flask import render_template, request, redirect, url_for, flash, Response, jsonify
-from app import app, db
+from flask import request
+from app import db
 from datetime import datetime
 from config import S3_BUCKET, S3_KEY, S3_SECRET
-from flask_bootstrap import Bootstrap
 import boto3
 from models import Files
+
 
 class Wrapper:
     s3_resource = boto3.resource(
@@ -22,37 +22,59 @@ class Wrapper:
     my_bucket = s3_resource.Bucket(S3_BUCKET)
     summaries = my_bucket.objects.all()
     comments = Files.query.all()
-    
-    @staticmethod
-    def makeUrl():
-        for c in Wrapper.comments:
-            params = {'Bucket': "bucket-flask-us", 'Key': c.name }
-            c.urlocator = Wrapper.s3_client.generate_presigned_url('get_object', params)
-        return c.urlocator
 
-    @staticmethod
-    def uploadFile():
-        file = request.files['file']
+
+
+    @classmethod
+    def get_files(cls):
+        files = Files.query.all()
+        for f in files:
+            params = {'Bucket': "bucket-flask-us", 'Key': f.name }
+            f.urlocator = cls.s3_client.generate_presigned_url('get_object', params)
+        return files
+
+
+    @classmethod
+    def save_file(cls, file):
+        """
+        File name is created in this way:
+        file.name + _ + utc.now()
+
+        :param file: File that is going to be saved
+        :return: Saved file
+        """
         now = datetime.now()    
         fname = file.filename + "_" + str(now)
-        Wrapper.my_bucket.Object(fname).put(Body=file)
+
+        cls.my_bucket.Object(fname).put(Body=file)
+
         newFile= Files(title=request.form.get("title"), name=fname)
         db.session.add(newFile)
         db.session.commit()
+
         return newFile
   
-    @staticmethod
-    def deleteFile():
-        key = request.form['key']
-        delete = Wrapper.my_bucket.Object(key).delete()
-        dlt = Files.query.filter_by(name=key).one()
+    @classmethod
+    def delete_file(cls, filename):
+        """
+        :param filename: Name of the file to be deleted
+        :return: None if succesfull
+        """
+        delete = cls.my_bucket.Object(filename).delete()
+        dlt = Files.query.filter_by(name=filename).one()
+
         db.session.delete(dlt)
         db.session.commit()
+
         return delete
 
-    @staticmethod
-    def downloadFile():
-        key = request.form['key']
-        my_bucket = Wrapper.s3_resource.Bucket(S3_BUCKET)
-        file_obj = my_bucket.Object(key).get()
-        return file_obj
+    @classmethod
+    def get_file_data(cls, filename):
+        """
+        :param filename: Name of the file to be downloaded
+        :return: file data
+        """
+        my_bucket = cls.s3_resource.Bucket(S3_BUCKET)
+        downloaded_file = my_bucket.Object(filename).get()
+
+        return downloaded_file
